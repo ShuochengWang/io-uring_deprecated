@@ -1,8 +1,12 @@
+#[cfg(feature = "sgx-feature")]
+use sgx_trts::libc;
+
 use std::os::unix::io::RawFd;
 use std::{io, mem, ptr};
 
 use crate::sys;
 
+#[cfg(not(feature = "sgx-feature"))]
 pub(crate) fn execute(
     fd: RawFd,
     opcode: libc::c_uint,
@@ -11,6 +15,24 @@ pub(crate) fn execute(
 ) -> io::Result<i32> {
     unsafe {
         let ret = sys::io_uring_register(fd, opcode, arg, len);
+        if ret >= 0 {
+            Ok(ret)
+        } else {
+            Err(io::Error::last_os_error())
+        }
+    }
+}
+
+#[cfg(feature = "sgx-feature")]
+pub(crate) fn execute(
+    fd: RawFd,
+    opcode: libc::c_uint,
+    arg: *const libc::c_void,
+    len: libc::c_uint,
+    size: libc::c_uint,
+) -> io::Result<i32> {
+    unsafe {
+        let ret = sys::io_uring_register(fd, opcode, arg, len, size);
         if ret >= 0 {
             Ok(ret)
         } else {

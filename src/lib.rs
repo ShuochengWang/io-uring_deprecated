@@ -2,6 +2,20 @@
 //!
 //! The crate only provides a summary of the parameters.
 //! For more detailed documentation, see manpage.
+#![cfg_attr(feature = "sgx-feature", no_std)]
+
+#[cfg(feature = "sgx-feature")]
+extern crate sgx_types;
+#[cfg(feature = "sgx-feature")]
+#[macro_use]
+extern crate sgx_tstd as std;
+#[cfg(feature = "sgx-feature")]
+extern crate sgx_trts;
+
+#[cfg(feature = "sgx-feature")]
+use std::prelude::v1::*;
+#[cfg(feature = "sgx-feature")]
+pub use sgx_trts::libc;
 
 #[macro_use]
 mod util;
@@ -12,7 +26,7 @@ pub mod squeue;
 mod submit;
 mod sys;
 
-#[cfg(feature = "concurrent")]
+#[cfg(any(feature = "concurrent", feature = "sgx-feature"))]
 pub mod concurrent;
 
 use std::convert::TryInto;
@@ -185,7 +199,7 @@ impl IoUring {
     }
 
     /// Make a concurrent IoUring.
-    #[cfg(feature = "concurrent")]
+    #[cfg(any(feature = "concurrent", feature = "sgx-feature"))]
     pub fn concurrent(self) -> concurrent::IoUring {
         concurrent::IoUring::new(self)
     }

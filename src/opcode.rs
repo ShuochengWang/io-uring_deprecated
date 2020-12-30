@@ -1,6 +1,8 @@
 //! Operation code
 
 #![allow(clippy::new_without_default)]
+#[cfg(feature = "sgx-feature")]
+use sgx_trts::libc;
 
 use std::mem;
 use std::os::unix::io::RawFd;

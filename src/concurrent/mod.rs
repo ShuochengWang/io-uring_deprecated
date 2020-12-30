@@ -1,4 +1,6 @@
 //! Concurrent IoUring.
+#[cfg(feature = "sgx-feature")]
+use sgx_trts::libc;
 
 mod cqueue;
 mod squeue;
@@ -6,7 +8,10 @@ mod squeue;
 use std::io;
 
 pub use cqueue::CompletionQueue;
+#[cfg(not(feature = "sgx-feature"))]
 use parking_lot::Mutex;
+#[cfg(feature = "sgx-feature")]
+use std::sync::SgxMutex as Mutex;
 pub use squeue::SubmissionQueue;
 
 /// Concurrent IoUring instance

@@ -1,3 +1,8 @@
+#[cfg(feature = "sgx-feature")]
+use sgx_trts::libc::{self, ocall::mmap, ocall:: munmap, ocall::close };
+#[cfg(not(feature = "sgx-feature"))]
+use libc::{ mmap, munmap, madvise, close };
+
 use std::convert::TryFrom;
 use std::os::unix::io::{AsRawFd, FromRawFd, IntoRawFd, RawFd};
 use std::sync::atomic;
@@ -22,7 +27,7 @@ pub struct Mmap {
 impl Mmap {
     pub fn new(fd: &Fd, offset: libc::off_t, len: usize) -> io::Result<Mmap> {
         unsafe {
-            match libc::mmap(
+            match mmap(
                 ptr::null_mut(),
                 len,
                 libc::PROT_READ | libc::PROT_WRITE,
@@ -40,11 +45,18 @@ impl Mmap {
         }
     }
 
+    #[cfg(not(feature = "sgx-feature"))]
     pub fn dontfork(&self) -> io::Result<()> {
-        match unsafe { libc::madvise(self.addr.as_ptr(), self.len, libc::MADV_DONTFORK) } {
+        match unsafe { madvise(self.addr.as_ptr(), self.len, libc::MADV_DONTFORK) } {
             0 => Ok(()),
             _ => Err(io::Error::last_os_error()),
         }
+    }
+    
+    #[cfg(feature = "sgx-feature")]
+    pub fn dontfork(&self) -> io::Result<()> {
+        println!("Not Sopported dontfork in SGX");
+        Err(io::Error::last_os_error())
     }
 
     #[inline]
@@ -56,7 +68,7 @@ impl Mmap {
 impl Drop for Mmap {
     fn drop(&mut self) {
         unsafe {
-            libc::munmap(self.addr.as_ptr(), self.len);
+            munmap(self.addr.as_ptr(), self.len);
         }
     }
 }
@@ -102,7 +114,7 @@ impl FromRawFd for Fd {
 impl Drop for Fd {
     fn drop(&mut self) {
         unsafe {
-            libc::close(self.0);
+            close(self.0);
         }
     }
 }

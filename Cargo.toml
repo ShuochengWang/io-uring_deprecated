@@ -17,16 +17,21 @@ exclude = [ "loom-ringbuf" ]
 members = [ "io-uring-test" ]
 
 [features]
+default = [ "libc" ]
 concurrent = [ "parking_lot" ]
 unstable = []
 overwrite = [ "bindgen" ]
 direct-syscall = [ "sc" ]
+sgx-feature = [ "sgx_types", "sgx_tstd", "sgx_trts" ]
 
 [dependencies]
-libc = "0.2"
+libc = { version = "0.2", optional = true }
 bitflags = "1"
 parking_lot = { version = "0.11", optional = true }
 sc = { version = "0.2", optional = true }
+sgx_types = { git = "https://github.com/apache/teaclave-sgx-sdk.git", optional = true }
+sgx_tstd = { git = "https://github.com/apache/teaclave-sgx-sdk.git", features = ["backtrace"], optional = true }
+sgx_trts = { git = "https://github.com/apache/teaclave-sgx-sdk.git", optional = true }
 
 [build-dependencies]
 bindgen = { version = "0.56", optional = true }
