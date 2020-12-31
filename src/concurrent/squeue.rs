@@ -3,9 +3,9 @@ use std::sync::atomic;
 use crate::squeue::{self, Entry};
 use crate::util::unsync_load;
 
-#[cfg(not(feature = "sgx-feature"))]
+#[cfg(not(sgx))]
 use parking_lot::Mutex;
-#[cfg(feature = "sgx-feature")]
+#[cfg(sgx)]
 use std::sync::SgxMutex as Mutex;
 
 pub struct SubmissionQueue<'a> {

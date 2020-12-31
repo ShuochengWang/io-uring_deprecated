@@ -1,4 +1,4 @@
-#[cfg(feature = "sgx-feature")]
+#[cfg(sgx)]
 use sgx_trts::libc;
 
 use std::os::unix::io::RawFd;
@@ -6,7 +6,7 @@ use std::{io, mem, ptr};
 
 use crate::sys;
 
-#[cfg(not(feature = "sgx-feature"))]
+#[cfg(not(sgx))]
 pub(crate) fn execute(
     fd: RawFd,
     opcode: libc::c_uint,
@@ -23,7 +23,7 @@ pub(crate) fn execute(
     }
 }
 
-#[cfg(feature = "sgx-feature")]
+#[cfg(sgx)]
 pub(crate) fn execute(
     fd: RawFd,
     opcode: libc::c_uint,

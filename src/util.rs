@@ -1,6 +1,6 @@
-#[cfg(feature = "sgx-feature")]
+#[cfg(sgx)]
 use sgx_trts::libc::{self, ocall::mmap, ocall:: munmap, ocall::close };
-#[cfg(not(feature = "sgx-feature"))]
+#[cfg(not(sgx))]
 use libc::{ mmap, munmap, madvise, close };
 
 use std::convert::TryFrom;
@@ -45,7 +45,7 @@ impl Mmap {
         }
     }
 
-    #[cfg(not(feature = "sgx-feature"))]
+    #[cfg(not(sgx))]
     pub fn dontfork(&self) -> io::Result<()> {
         match unsafe { madvise(self.addr.as_ptr(), self.len, libc::MADV_DONTFORK) } {
             0 => Ok(()),
@@ -53,7 +53,7 @@ impl Mmap {
         }
     }
     
-    #[cfg(feature = "sgx-feature")]
+    #[cfg(sgx)]
     pub fn dontfork(&self) -> io::Result<()> {
         println!("Not Sopported dontfork in SGX");
         Err(io::Error::last_os_error())
