@@ -123,6 +123,32 @@ fn main() -> anyhow::Result<()> {
 
                     accept.count += 1;
 
+                    // io_uring fast poll
+                    // let fd = ret;
+
+                    // let (buf_index, buf) = match bufpool.pop() {
+                    //     Some(buf_index) => (buf_index, &mut buf_alloc[buf_index]),
+                    //     None => {
+                    //         let buf = vec![0u8; 2048].into_boxed_slice();
+                    //         let buf_entry = buf_alloc.vacant_entry();
+                    //         let buf_index = buf_entry.key();
+                    //         (buf_index, buf_entry.insert(buf))
+                    //     }
+                    // };
+
+                    // let read_token = token_alloc.insert(Token::Read { fd, buf_index });
+
+                    // let read_e = opcode::Read::new(types::Fd(fd), buf.as_mut_ptr(), buf.len() as _)
+                    //     .build()
+                    //     .user_data(read_token as _);
+
+                    // unsafe {
+                    //     if let Err(entry) = sq.push(read_e) {
+                    //         backlog.push(entry);
+                    //     }
+                    // }
+
+                    // poll
                     let fd = ret;
                     let poll_token = token_alloc.insert(Token::Poll { fd });
 
@@ -202,6 +228,24 @@ fn main() -> anyhow::Result<()> {
                     let entry = if offset + write_len >= len {
                         bufpool.push(buf_index);
 
+                        // io_uring fast poll
+                        // let (buf_index, buf) = match bufpool.pop() {
+                        //     Some(buf_index) => (buf_index, &mut buf_alloc[buf_index]),
+                        //     None => {
+                        //         let buf = vec![0u8; 2048].into_boxed_slice();
+                        //         let buf_entry = buf_alloc.vacant_entry();
+                        //         let buf_index = buf_entry.key();
+                        //         (buf_index, buf_entry.insert(buf))
+                        //     }
+                        // };
+    
+                        // *token = Token::Read { fd, buf_index };
+    
+                        // opcode::Read::new(types::Fd(fd), buf.as_mut_ptr(), buf.len() as _)
+                        //     .build()
+                        //     .user_data(token_index as _)
+
+                        // poll
                         *token = Token::Poll { fd };
 
                         opcode::PollAdd::new(types::Fd(fd), libc::POLLIN as _)
