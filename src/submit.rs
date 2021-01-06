@@ -147,10 +147,6 @@ impl<'a> Submitter<'a> {
         }
     }
 
-    pub fn start_enter_syscall_thread(&self) {
-        sys::start_enter_syscall_thread(self.fd.as_raw_fd());
-    }
-
     /// Register buffers.
     #[cfg(not(sgx))]
     pub fn register_buffers(&self, bufs: &[libc::iovec]) -> io::Result<()> {

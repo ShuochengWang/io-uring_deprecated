@@ -154,6 +154,10 @@ impl IoUring {
         &self.params
     }
 
+    pub fn start_enter_syscall_thread(&self) {
+        sys::start_enter_syscall_thread(self.fd.as_raw_fd());
+    }
+    
     /// Initiate and/or complete asynchronous I/O
     ///
     /// # Safety

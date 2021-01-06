@@ -62,6 +62,7 @@ impl AcceptCount {
 
 fn main() -> anyhow::Result<()> {
     let ring = IoUring::new(256)?.concurrent();
+    ring.start_enter_syscall_thread();
     let listener = TcpListener::bind(("127.0.0.1", 3456))?;
 
     let mut bufpool = Vec::with_capacity(64);

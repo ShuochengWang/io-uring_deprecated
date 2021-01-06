@@ -31,6 +31,10 @@ impl IoUring {
         }
     }
 
+    pub fn start_enter_syscall_thread(&self) {
+        self.ring.start_enter_syscall_thread();
+    }
+
     /// Initiate and/or complete asynchronous I/O
     ///
     /// # Safety

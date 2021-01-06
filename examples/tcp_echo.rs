@@ -53,6 +53,7 @@ impl AcceptCount {
 
 fn main() -> anyhow::Result<()> {
     let mut ring = IoUring::new(256)?;
+    ring.start_enter_syscall_thread();
     let listener = TcpListener::bind(("127.0.0.1", 3456))?;
 
     let mut backlog = Vec::new();
@@ -67,8 +68,6 @@ fn main() -> anyhow::Result<()> {
     let mut accept = AcceptCount::new(listener.as_raw_fd(), token_alloc.insert(Token::Accept), 3);
 
     accept.push_to(&mut sq.available());
-
-    // submitter.start_enter_syscall_thread();
 
     loop {
         match submitter.submit_and_wait(1) {
